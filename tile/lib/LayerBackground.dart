@@ -2,78 +2,56 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:tile/Coordinate.dart';
 import 'package:tile/Utils.dart';
-import 'package:tile/tile.dart';
 
 class LayerBackground extends StatefulWidget {
-  GlobalKey _myKey;
+  int boardSize;
 
-  LayerBackground(this._myKey);
+  LayerBackground(this.boardSize);
 
   @override
   State<StatefulWidget> createState() {
-    return LayerBackgroundState(_myKey);
+    return LayerBackgroundState();
   }
 }
 
 class LayerBackgroundState extends State<LayerBackground>{
-  GlobalKey _myKey;
-
-  LayerBackgroundState(this._myKey);
 
   @override
   Widget build(BuildContext context) {
+    print('layer background build');
     return CustomPaint(
-      painter: LayerBackgroundUI(),
-      key: _myKey,
+      painter: LayerBackgroundUI(widget.boardSize),
     );
   }
 }
 
-//class LayerBackground extends StatelessWidget {
-//  GlobalKey _myKey;
-//
-//  LayerBackground(this._myKey);
-//
-//  @override
-//  Widget build(BuildContext context) {
-//    return CustomPaint(
-//      painter: LayerBackgroundUI(),
-//      key: _myKey,
-//    );
-//  }
-//}
-
 class LayerBackgroundUI extends CustomPainter {
-  double width;
-//  double tileSize;
-//  double xOffset;
-//  double yOffset;
-//  int boardSize = 19;
+  double _width;
+  double _tileSize;
+  double _xOffset;
+  double _yOffset;
+  int boardSize;
+
+  LayerBackgroundUI(this.boardSize);
+
   Paint _paintBg = Paint()
     ..color = Colors.yellow //画笔颜色
-//    ..strokeCap = StrokeCap.round//画笔笔触类型
-//    ..isAntiAlias = true//是否启动抗锯齿
-//    ..style=PaintingStyle.fill//绘画风格，默认为填充
-//    ..blendMode=BlendMode.exclusion//颜色混合模式
-//    ..colorFilter=ColorFilter.mode(Colors.blueAccent, BlendMode.exclusion)//颜色渲染模式，一般是矩阵效果来改变的，但是flutter中只能使用颜色混合模式
-//    ..maskFilter=MaskFilter.blur(BlurStyle.inner, 3.0)//模糊遮罩效果，flutter中只有这个
-//    ..filterQuality=FilterQuality.high//颜色渲染模式的质量
     ..strokeWidth = 15.0;
   Paint _paintBlack = Paint()..color = Colors.black;
 
   @override
   void paint(Canvas canvas, Size size) {
     print('background size：$size');
-    if (width == null) {
-      width = min(size.width, size.height);
+    if (_width == null) {
+      _width = min(size.width, size.height);
     }
-    if (tileSize == null) {
-      tileSize = width / (boardSize + 1);
-      xOffset = tileSize * 1;
-      yOffset = tileSize * 1;
+    if (_tileSize == null) {
+      _tileSize = _width / (boardSize + 1);
+      _xOffset = _tileSize * 1;
+      _yOffset = _tileSize * 1;
     }
-    drawBackground(canvas, width);
-    drawLines(canvas, width);
+    drawBackground(canvas, _width);
+    drawLines(canvas, _width);
     drawStars(canvas);
     drawCoordinate(canvas);
   }
@@ -92,7 +70,7 @@ class LayerBackgroundUI extends CustomPainter {
   }
 
   void drawStars(Canvas canvas) {
-    double starSize = boardSize <= 9 ? tileSize / 10 : tileSize / 8;
+    double starSize = boardSize <= 9 ? _tileSize / 10 : _tileSize / 8;
     for (Coordinate c in Utils.createStar(boardSize)) {
       if(c!=null){
         canvas.drawOval(Rect.fromCircle(center: Offset(x2Screen(c.x), y2Screen(c.y)),radius: starSize), _paintBlack);
@@ -115,7 +93,7 @@ class LayerBackgroundUI extends CustomPainter {
       );
       //x
       textPainter.layout();
-      textPainter.paint(canvas, Offset(tileSize * (i - 1.25) + xOffset, yOffset / 4));
+      textPainter.paint(canvas, Offset(_tileSize * (i - 1.25) + _xOffset, _yOffset / 4));
 
       textSpan = TextSpan(
           style: TextStyle(
@@ -130,7 +108,7 @@ class LayerBackgroundUI extends CustomPainter {
       );
       //y
       textPainter.layout();
-      textPainter.paint(canvas, Offset(xOffset / 4, tileSize * (i - 1.25) + yOffset));
+      textPainter.paint(canvas, Offset(_xOffset / 4, _tileSize * (i - 1.25) + _yOffset));
     }
   }
 
@@ -140,15 +118,15 @@ class LayerBackgroundUI extends CustomPainter {
   }
 
   double x2Screen(int x) {
-    return (x - 1) * tileSize + xOffset;
+    return (x - 1) * _tileSize + _xOffset;
   }
 
   double y2Screen(int y) {
-    return (boardSize - y) * tileSize + xOffset;
+    return (boardSize - y) * _tileSize + _xOffset;
   }
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
-    return true;
+    return false;
   }
 }

@@ -10,7 +10,8 @@ class MyApp extends StatelessWidget{
     return Container(
       padding: EdgeInsets.all(20),
       color: Color.fromARGB(255, 255, 255, 255),
-      child: AspectRatio(aspectRatio: 1/10,child: TileView()),
+//      child: AspectRatio(aspectRatio: 1/10,child: TileView()),
+      child: TileView()
     );
   }
 }
