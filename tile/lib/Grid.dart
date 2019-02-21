@@ -197,9 +197,18 @@ class Grid {
       identical(this, other) ||
           other is Grid &&
               runtimeType == other.runtimeType &&
-              _a == other._a;
+              equalsList(_a,other._a);
 
   @override
   int get hashCode => _a.hashCode;
 
+  bool equalsList(List<List<int>> a,List<List<int>> b){
+    for (int j = 0; j < boardSize; j++) {
+      for (int i = 0; i < boardSize; i++) {
+        if (a[j][i] != b[j][i])
+          return false;
+      }
+    }
+    return true;
+  }
 }

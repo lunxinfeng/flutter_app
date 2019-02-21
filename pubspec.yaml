@@ -21,6 +21,7 @@ dependencies:
   cupertino_icons: ^0.1.2
   tile:
     path: ./tile
+  dio: ^2.0.10
 
 dev_dependencies:
   flutter_test:

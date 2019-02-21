@@ -2,16 +2,28 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:tile/Board.dart';
+import 'package:tile/Coordinate.dart';
+import 'package:tile/Function.dart';
 
 class LayerChess extends StatefulWidget {
-  GlobalKey keyChess;
+  GlobalKey<LayerChessState> keyChess;
   bool boardUnlock;
   Board board;
   int boardSize;
   int putType;
+  TileNum tileNum;
+  Func tileListener;
 
-  LayerChess({this.keyChess, this.boardUnlock = true, this.board, this.boardSize = 19,
-    this.putType = 0});
+
+  LayerChess({
+    this.keyChess,
+    this.boardUnlock = true,
+    this.board,
+    this.boardSize = 19,
+    this.putType = 0,
+    this.tileNum = TileNum.end,
+    this.tileListener
+  }):super(key: keyChess);
 
   @override
   State<StatefulWidget> createState() {
@@ -33,7 +45,20 @@ class LayerChessState extends State<LayerChess>{
     print('layer chess initState');
   }
 
-  void onTapUp(TapUpDetails event) {
+  void regret(int num){
+    if ( widget.board.getCount() < num) return;
+    widget.board = widget.board.getSubBoard(widget.board.getCount() - num);
+    rePaintChess();
+  }
+
+  TileNum get tileNum => widget.tileNum;
+
+  set tileNum(TileNum tileNum) {
+    widget.tileNum = tileNum;
+    rePaintChess();
+  }
+
+  void _onTapUp(TapUpDetails event) {
     print('onTapUp：${event.globalPosition}');
     if (!widget.boardUnlock) return;
     if(_startX == null || _startY == null){
@@ -72,11 +97,10 @@ class LayerChessState extends State<LayerChess>{
   Widget build(BuildContext context) {
     print('layer chess build');
     return GestureDetector(
-        key: widget.keyChess,
-        onTapUp: onTapUp,
+        onTapUp: _onTapUp,
         child: Container(
           child: CustomPaint(
-            painter: LayerChessPainter(widget.board,widget.boardSize)
+              painter: _LayerChessPainter(widget.board,widget.boardSize,widget.tileNum)
           ),
         ));
   }
@@ -100,21 +124,13 @@ class LayerChessState extends State<LayerChess>{
   }
 
   bool doPutPiece(int x, int y) {
-//    String c = board.getCurBW();
-//    if (y < 10)
-//      c += "0$y";
-//    else
-//      c += y.toString();
-//    if (x < 10)
-//      c += "0$x";
-//    else
-//      c += x.toString();
-
     Board.hasPickother = false;
 
     if (widget.board.put(x, y, widget.boardSize)) {
       print('doPutPiece：$x,$y');
       rePaintChess();
+      if (widget.tileListener != null)
+        widget.tileListener();
       return true;
     }
 
@@ -130,16 +146,23 @@ class LayerChessState extends State<LayerChess>{
   }
 }
 
-class LayerChessPainter extends CustomPainter {
+enum TileNum{
+  all,
+  end,
+  none
+}
+
+class _LayerChessPainter extends CustomPainter {
   Board board;
   int boardSize;
+  TileNum tileNum;
   double _tileSize;
   double _xOffset;
   double _yOffset;
   Paint _paintBlack = Paint()..color = Colors.black;
   Paint _paintWhite = Paint()..color = Colors.white;
 
-  LayerChessPainter(this.board,this.boardSize);
+  _LayerChessPainter(this.board,this.boardSize,this.tileNum);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -150,10 +173,11 @@ class LayerChessPainter extends CustomPainter {
       _xOffset = _tileSize * 1;
       _yOffset = _tileSize * 1;
     }
-    drawChess(canvas);
+    _drawChess(canvas);
+    _drawNum(canvas,tileNum);
   }
 
-  void drawChess(Canvas canvas){
+  void _drawChess(Canvas canvas){
     for(int x = 1;x<=boardSize;x++){
       for(int y = 1;y<=boardSize;y++){
         int bw = board.getValue(x, y);
@@ -168,6 +192,58 @@ class LayerChessPainter extends CustomPainter {
         }
       }
     }
+  }
+
+  void _drawNum(Canvas canvas,TileNum tileNum){
+    switch (tileNum) {
+      case TileNum.all:
+        int count = board.getCount();
+        var paintList = List<Coordinate>();
+        for(int i = count;i>=1;i--){
+          Coordinate c = board.getPieceProcess(i - 1).c;
+
+          if(c.x == 0 || c.y == 0) continue;
+          if(paintList.contains(c)) continue;
+          paintList.add(c);
+
+          Offset offset = Offset(x2Screen(c.x), y2Screen(c.y));
+          Color color;
+          if(i == count){
+            color = Colors.red;
+          }else{
+            color = i % 2 == 1?Colors.white:Colors.black;
+          }
+          _drawText(canvas, i.toString(), color, offset);
+        }
+        break;
+      case TileNum.end:
+        Coordinate coorLast = board.getLastPosition();
+        if(coorLast == null) return;
+        Offset offset = Offset(x2Screen(coorLast.x), y2Screen(coorLast.y));
+        _drawText(canvas, board.getCount().toString(), Colors.red, offset);
+        break;
+      case TileNum.none:
+
+        break;
+    }
+  }
+
+  ///offset:文字的中心点
+  void _drawText(Canvas canvas,String text,Color textColor,Offset offset){
+    TextSpan textSpan = TextSpan(
+        style: TextStyle(
+            color: textColor,
+            fontSize: 10
+        ),
+        text: text
+    );
+    TextPainter textPainter = TextPainter(
+        text: textSpan,
+        textDirection: TextDirection.ltr
+    );
+    //x
+    textPainter.layout();
+    textPainter.paint(canvas, Offset(offset.dx - textPainter.width/2, offset.dy - textPainter.height/2));
   }
 
   double x2Screen(int x) {
