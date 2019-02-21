@@ -83,7 +83,7 @@ class LayerBackgroundUI extends CustomPainter {
       TextSpan textSpan = TextSpan(
         style: TextStyle(
           color: Colors.black,
-          fontSize: 8
+          fontSize: _tileSize * 2/5
         ),
         text: getAlpha(i-1)
       );
@@ -98,7 +98,7 @@ class LayerBackgroundUI extends CustomPainter {
       textSpan = TextSpan(
           style: TextStyle(
               color: Colors.black,
-              fontSize: 8
+              fontSize: _tileSize * 2/5
           ),
           text: (boardSize - i + 1).toString()
       );

@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
             children: <Widget>[
               TileView(
                 keyChess: keyChess,
+                boardSize: 9,
                 tileListener: _tileListener,
               ),
               Container(

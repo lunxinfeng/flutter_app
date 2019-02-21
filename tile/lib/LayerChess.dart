@@ -233,7 +233,7 @@ class _LayerChessPainter extends CustomPainter {
     TextSpan textSpan = TextSpan(
         style: TextStyle(
             color: textColor,
-            fontSize: 10
+            fontSize: _tileSize * 2/5
         ),
         text: text
     );
