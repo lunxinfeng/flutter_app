@@ -13,6 +13,7 @@ class Coordinate{
   Coordinate(this.x, this.y, this.bw, this._boardSize);
 
   Coordinate.create(this.x, this.y, this._boardSize);
+  Coordinate.createNoSize(this.x, this.y, this.bw);
 
   Coordinate up(){
     Coordinate c = Coordinate.create(x, y - 1,_boardSize);

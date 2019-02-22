@@ -1,0 +1,3 @@
+set solib-search-path ./obj/local/x86_64
+source C:/AndroidSDK/adt/android-ndk-r10e/prebuilt/common/gdb/common.setup
+directory C:/AndroidSDK/adt/android-ndk-r10e/platforms/android-21/arch-x86_64/usr/include C:/AndroidSDK/adt/android-ndk-r10e/sources/cxx-stl/system/include jni/jpush jni/gnugo-3.8

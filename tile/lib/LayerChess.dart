@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:tile/Board.dart';
 import 'package:tile/Coordinate.dart';
 import 'package:tile/Function.dart';
+import 'package:tile/util/SgfHelper.dart';
 
 class LayerChess extends StatefulWidget {
   GlobalKey<LayerChessState> keyChess;
@@ -55,6 +56,14 @@ class LayerChessState extends State<LayerChess>{
 
   set tileNum(TileNum tileNum) {
     widget.tileNum = tileNum;
+    rePaintChess();
+  }
+
+  void showSteps(String steps){
+    List<Coordinate> cs = SgfHelper.getCoordListformStr(steps);
+    for (Coordinate c in cs) {
+      widget.board.put(c.x, c.y,widget.boardSize);
+    }
     rePaintChess();
   }
 
