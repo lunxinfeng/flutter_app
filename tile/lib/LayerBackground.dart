@@ -14,7 +14,8 @@ class LayerBackground extends StatefulWidget {
   }
 }
 
-class LayerBackgroundState extends State<LayerBackground> {
+class LayerBackgroundState extends State<LayerBackground>{
+
   @override
   Widget build(BuildContext context) {
     print('layer background build');
@@ -71,40 +72,43 @@ class LayerBackgroundUI extends CustomPainter {
   void drawStars(Canvas canvas) {
     double starSize = boardSize <= 9 ? _tileSize / 10 : _tileSize / 8;
     for (Coordinate c in Utils.createStar(boardSize)) {
-      if (c != null) {
-        canvas.drawOval(
-            Rect.fromCircle(
-                center: Offset(x2Screen(c.x), y2Screen(c.y)), radius: starSize),
-            _paintBlack);
+      if(c!=null){
+        canvas.drawOval(Rect.fromCircle(center: Offset(x2Screen(c.x), y2Screen(c.y)),radius: starSize), _paintBlack);
       }
     }
   }
 
   void drawCoordinate(Canvas canvas) {
-    for (int i = 1; i <= boardSize; i++) {
+    for(int i = 1; i <= boardSize; i++){
       TextSpan textSpan = TextSpan(
-          style: TextStyle(color: Colors.black, fontSize: _tileSize * 2 / 5),
-          text: getAlpha(i - 1));
-      TextPainter textPainter =
-          TextPainter(text: textSpan, textDirection: TextDirection.ltr);
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: _tileSize * 2/5
+        ),
+        text: getAlpha(i-1)
+      );
+      TextPainter textPainter = TextPainter(
+        text: textSpan,
+        textDirection: TextDirection.ltr
+      );
       //x
       textPainter.layout();
-      textPainter.paint(
-          canvas,
-          Offset(_tileSize * (i - 1) + _xOffset - textPainter.width / 2,
-              (_yOffset - textPainter.height) / 2));
+      textPainter.paint(canvas, Offset(_tileSize * (i - 1) + _xOffset - textPainter.width/2, (_yOffset - textPainter.height) / 2));
 
       textSpan = TextSpan(
-          style: TextStyle(color: Colors.black, fontSize: _tileSize * 2 / 5),
-          text: (boardSize - i + 1).toString());
-      textPainter =
-          TextPainter(text: textSpan, textDirection: TextDirection.ltr);
+          style: TextStyle(
+              color: Colors.black,
+              fontSize: _tileSize * 2/5
+          ),
+          text: (boardSize - i + 1).toString()
+      );
+      textPainter = TextPainter(
+          text: textSpan,
+          textDirection: TextDirection.ltr
+      );
       //y
       textPainter.layout();
-      textPainter.paint(
-          canvas,
-          Offset((_xOffset - textPainter.width) / 2,
-              _tileSize * (i - 1) + _yOffset - textPainter.height / 2));
+      textPainter.paint(canvas, Offset((_xOffset - textPainter.width) / 2, _tileSize * (i - 1) + _yOffset- textPainter.height/2));
     }
   }
 
