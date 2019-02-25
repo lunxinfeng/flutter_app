@@ -14,41 +14,60 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp>{
-  GlobalKey<LayerChessState> keyChess = GlobalKey();
+  bool boardUnlock = false;
+  ///棋盘id
+  GlobalKey<LayerChessState> _keyChess = GlobalKey();
+  bool _btnRegretEnabled = false;
+  bool _btnShowNumEnabled = true;
+  bool _btnStartGameEnabled = true;
+  String hint = "";
+
 
   void _actionRegret() {
     print('_actionRegret');
-    keyChess.currentState.regret(2);
+    if(_keyChess.currentState.board.getCount() < 2) return;
+    _keyChess.currentState.regret(2);
+    Plugin().aiRegret();
   }
 
   void _actionShowNum() {
     print('_actionShowNum');
-    if(keyChess.currentState.tileNum == TileNum.all)
-      keyChess.currentState.tileNum = TileNum.end;
+    if(_keyChess.currentState.tileNum == TileNum.all)
+      _keyChess.currentState.tileNum = TileNum.end;
     else
-      keyChess.currentState.tileNum = TileNum.all;
+      _keyChess.currentState.tileNum = TileNum.all;
   }
 
   void _actionStartGame(){
     print('_actionStartGame');
     Plugin().startGame().then((result){
       print("result StartGame");
+      setState(() {
+        boardUnlock = true;
+        _btnStartGameEnabled = false;
+      });
     });
   }
 
 
   void _tileListener([Object obj1,Object obj2,Object obj3]) async{
     print('_tileListener');
-    String lastStep = SgfHelper.getBoardlastStr(keyChess.currentState.widget.board);
-
-//    String result = await Plugin().getRobotChess(lastStep);
-//    print("result:$result");
-//    keyChess.currentState.showSteps(result);
+    setState(() {
+      boardUnlock = false;
+      _btnRegretEnabled = false;
+    });
+    String lastStep = SgfHelper.getBoardlastStr(_keyChess.currentState.board);
 
     Plugin().getRobotChess(lastStep).then((result){
       print("result:$result");
-      keyChess.currentState.showSteps(result);
+      setState(() {
+        hint = result;
+        boardUnlock = true;
+        _btnRegretEnabled = true;
+      });
+      _keyChess.currentState.showSteps(result);
     });
+    print('_tileListener end');
   }
 
   @override
@@ -60,8 +79,9 @@ class _MyAppState extends State<MyApp>{
           child: Column(
             children: <Widget>[
               TileView(
-                keyChess: keyChess,
+                keyChess: _keyChess,
                 boardSize: 9,
+                boardUnlock: boardUnlock,
                 tileListener: _tileListener,
               ),
               Container(
@@ -69,20 +89,16 @@ class _MyAppState extends State<MyApp>{
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
-                    RaisedButton(
-                      key: Key("btnRegret"),
-                      onPressed: _actionRegret,
-                      child: Text("悔棋"),
-                    ),
-                    RaisedButton(
-                      onPressed: _actionShowNum,
-                      child: Text("手顺"),
-                    ),
-                    RaisedButton(
-                      onPressed: _actionStartGame,
-                      child: Text("开始游戏"),
-                    )
+                    _buildButtonRegret(),
+                    _buildButtonShowNum(),
+                    _buildButtonStartGame()
                   ],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.only(top: 30),
+                child: Text(
+                    hint
                 ),
               ),
             ],
@@ -90,4 +106,24 @@ class _MyAppState extends State<MyApp>{
     );
   }
 
+  Widget _buildButtonRegret(){
+    return RaisedButton(
+      onPressed: _btnRegretEnabled?_actionRegret:null,
+      child: Text("悔棋"),
+    );
+  }
+
+  Widget _buildButtonShowNum(){
+    return RaisedButton(
+      onPressed: _btnShowNumEnabled?_actionShowNum:null,
+      child: Text("手顺"),
+    );
+  }
+
+  Widget _buildButtonStartGame(){
+    return RaisedButton(
+      onPressed: _btnStartGameEnabled?_actionStartGame:null,
+      child: Text("开始游戏"),
+    );
+  }
 }

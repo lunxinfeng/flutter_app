@@ -12,4 +12,8 @@ class Plugin{
   Future<void> startGame() async{
     await _methodChannel.invokeMethod("startGame");
   }
+
+  Future<void> aiRegret() async{
+    await _methodChannel.invokeMethod("aiRegret");
+  }
 }

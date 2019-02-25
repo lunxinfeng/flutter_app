@@ -9,22 +9,20 @@ import 'package:tile/util/SgfHelper.dart';
 class LayerChess extends StatefulWidget {
   GlobalKey<LayerChessState> keyChess;
   bool boardUnlock;
-  Board board;
   int boardSize;
   int putType;
   TileNum tileNum;
   Func tileListener;
 
 
-  LayerChess({
+  LayerChess(
     this.keyChess,
-    this.boardUnlock = true,
-    this.board,
-    this.boardSize = 19,
-    this.putType = 0,
-    this.tileNum = TileNum.end,
+    this.boardUnlock,
+    this.boardSize,
+    this.putType,
+    this.tileNum,
     this.tileListener
-  }):super(key: keyChess);
+  ):super(key: keyChess);
 
   @override
   State<StatefulWidget> createState() {
@@ -33,6 +31,8 @@ class LayerChess extends StatefulWidget {
 }
 
 class LayerChessState extends State<LayerChess>{
+  Board board;
+
   double _startX;//左上角x坐标
   double _startY;//左上角y坐标
   double _tileSize;
@@ -41,14 +41,14 @@ class LayerChessState extends State<LayerChess>{
 
   @override
   void initState() {
-    if(widget.board == null)
-      widget.board = Board(widget.boardSize);
+    if(board == null)
+      board = Board(widget.boardSize);
     print('layer chess initState');
   }
 
   void regret(int num){
-    if ( widget.board.getCount() < num) return;
-    widget.board = widget.board.getSubBoard(widget.board.getCount() - num);
+    if ( board.getCount() < num) return;
+    board = board.getSubBoard(board.getCount() - num);
     rePaintChess();
   }
 
@@ -62,7 +62,7 @@ class LayerChessState extends State<LayerChess>{
   void showSteps(String steps){
     List<Coordinate> cs = SgfHelper.getCoordListformStr(steps);
     for (Coordinate c in cs) {
-      widget.board.put(c.x, c.y,widget.boardSize);
+      board.put(c.x, c.y,widget.boardSize);
     }
     rePaintChess();
   }
@@ -109,7 +109,7 @@ class LayerChessState extends State<LayerChess>{
         onTapUp: _onTapUp,
         child: Container(
           child: CustomPaint(
-              painter: _LayerChessPainter(widget.board,widget.boardSize,widget.tileNum)
+              painter: _LayerChessPainter(board,widget.boardSize,widget.tileNum)
           ),
         ));
   }
@@ -135,7 +135,7 @@ class LayerChessState extends State<LayerChess>{
   bool doPutPiece(int x, int y) {
     Board.hasPickother = false;
 
-    if (widget.board.put(x, y, widget.boardSize)) {
+    if (board.put(x, y, widget.boardSize)) {
       print('doPutPiece：$x,$y');
       rePaintChess();
       if (widget.tileListener != null)

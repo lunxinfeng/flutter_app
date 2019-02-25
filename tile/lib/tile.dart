@@ -7,12 +7,18 @@ import 'package:tile/LayerChess.dart';
 
 class TileView extends StatelessWidget {
   int boardSize;
+  bool boardUnlock;
+  int putType;
+  TileNum tileNum;
   Func tileListener;
   GlobalKey<LayerChessState> keyChess;
 
   TileView({
     this.keyChess,
     this.boardSize = 19,
+    this.boardUnlock = false,
+    this.putType = 0,
+    this.tileNum = TileNum.end,
     this.tileListener
   });
 
@@ -28,11 +34,7 @@ class TileView extends StatelessWidget {
           RepaintBoundary(
             child: LayerBackground(boardSize),
           ),
-          LayerChess(
-            keyChess: keyChess,
-            boardSize: boardSize,
-            tileListener: tileListener,
-          )
+          LayerChess(keyChess,boardUnlock,boardSize,putType,tileNum,tileListener)
         ],
       ),
     );

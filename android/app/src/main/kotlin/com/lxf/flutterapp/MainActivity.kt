@@ -27,25 +27,29 @@ class MainActivity : FlutterActivity() {
                 .setMethodCallHandler { methodCall, result ->
                     when (methodCall.method) {
                         "startGame" -> {
-                            startGame()
+                            result.success(startGame())
                         }
                         "getRobotChess" -> {
                             println(methodCall.arguments)
-                            result.success(getRobotChess(methodCall.arguments as String))
+                            getRobotChess(methodCall.arguments as String,result)
+                        }
+                        "aiRegret" -> {
+                            result.success(aiRegret(methodCall.arguments as Int))
                         }
                     }
                 }
     }
 
-    private fun startGame() {
+    private fun startGame(): Int {
         println("android startGame")
         //用户执黑
         JavaToC.playGTP("boardsize " + 9) //9路棋
         JavaToC.playGTP("level 4")// 初始化机器人，设置等级
+        return 1
     }
 
-    private fun getRobotChess(lastStep:String): String {
-        println("android getRobotChess")
+    private fun getRobotChess(lastStep:String,result:MethodChannel.Result) {
+        println("android getRobotChess $lastStep")
         val future = executorService.submit(Callable<String> {
             val lastStepx = lastStep.substring(1, 3).toInt() // 从第一个截取前两个
             val lastStepy = lastStep.substring(3).toInt()  // 截取最后2个
@@ -54,12 +58,20 @@ class MainActivity : FlutterActivity() {
                 step = it.gtpString(lastStepy - 1, lastStepx, 0)
                 step = parseCoordinate(true,step,it)
             }
+            println("android getRobotChess result $step")
+            result.success(step)
             step
         })
         println("android getRobotChess after")
-        return future.get()
     }
 
+    private fun aiRegret(num:Int): Int {
+        println("android aiRegret $num")
+        for(i in 0 until num){
+            JavaToC.playGTP("undo")
+        }
+        return 1
+    }
 
     /**
      * 把机器人C方法传过来的值解析成board可以读的坐标值 like "+1203"
@@ -106,7 +118,7 @@ class MainActivity : FlutterActivity() {
     /**
      * 将字母转换成对应的坐标 的值 （先转换成相应的asscll码值 再 转换成坐标值） 注意机器人的X坐标没有“I”
      */
-    fun changeToIntString(coordinateX: Char): String {
+    private fun changeToIntString(coordinateX: Char): String {
         val coordiateXInt = coordinateX.toInt()// Integer.valueOf(coordinateY);
         val intX: Int
         if (coordinateX.toInt() > 73) {
