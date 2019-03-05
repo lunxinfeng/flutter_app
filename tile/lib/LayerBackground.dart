@@ -6,7 +6,9 @@ import 'package:tile/Utils.dart';
 class LayerBackground extends StatefulWidget {
   int boardSize;
 
-  LayerBackground(this.boardSize);
+  LayerBackground({
+    @required this.boardSize
+});
 
   @override
   State<StatefulWidget> createState() {
@@ -20,24 +22,28 @@ class LayerBackgroundState extends State<LayerBackground>{
   Widget build(BuildContext context) {
     print('layer background build');
     return CustomPaint(
-      painter: LayerBackgroundUI(widget.boardSize),
+      painter: _LayerBackgroundUI(widget.boardSize),
     );
   }
 }
 
-class LayerBackgroundUI extends CustomPainter {
+class _LayerBackgroundUI extends CustomPainter {
+  ///棋盘尺寸
   double _width;
+  ///每个格子的尺寸
   double _tileSize;
+  ///左右第一条边线和边界的距离
   double _xOffset;
+  ///上下第一条边线和边界的距离
   double _yOffset;
   int boardSize;
 
-  LayerBackgroundUI(this.boardSize);
+  _LayerBackgroundUI(this.boardSize);
 
   Paint _paintBg = Paint()
     ..color = Colors.yellow //画笔颜色
     ..strokeWidth = 15.0;
-  Paint _paintBlack = Paint()..color = Colors.black;
+  Paint _paintLine = Paint()..color = Colors.black;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -63,9 +69,9 @@ class LayerBackgroundUI extends CustomPainter {
   void drawLines(Canvas canvas, double width) {
     for (int i = 1; i < boardSize + 1; i++) {
       canvas.drawLine(Offset(x2Screen(1), y2Screen(i)),
-          Offset(x2Screen(boardSize), y2Screen(i)), _paintBlack);
+          Offset(x2Screen(boardSize), y2Screen(i)), _paintLine);
       canvas.drawLine(Offset(x2Screen(i), y2Screen(1)),
-          Offset(x2Screen(i), y2Screen(boardSize)), _paintBlack);
+          Offset(x2Screen(i), y2Screen(boardSize)), _paintLine);
     }
   }
 
@@ -73,7 +79,7 @@ class LayerBackgroundUI extends CustomPainter {
     double starSize = boardSize <= 9 ? _tileSize / 10 : _tileSize / 8;
     for (Coordinate c in Utils.createStar(boardSize)) {
       if(c!=null){
-        canvas.drawOval(Rect.fromCircle(center: Offset(x2Screen(c.x), y2Screen(c.y)),radius: starSize), _paintBlack);
+        canvas.drawOval(Rect.fromCircle(center: Offset(x2Screen(c.x), y2Screen(c.y)),radius: starSize), _paintLine);
       }
     }
   }

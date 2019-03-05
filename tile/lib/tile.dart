@@ -32,7 +32,9 @@ class TileView extends StatelessWidget {
         fit: StackFit.expand,
         children: <Widget>[
           RepaintBoundary(
-            child: LayerBackground(boardSize),
+            child: LayerBackground(
+                boardSize:boardSize
+            ),
           ),
           LayerChess(keyChess,boardUnlock,boardSize,putType,tileNum,tileListener)
         ],
