@@ -161,13 +161,15 @@ class Page2 extends StatelessWidget {
               },
               child: Text("pushAndRemoveUntil"),
             ),
-            RaisedButton(
-              onPressed: () {
-                print('Page2 pop');
-                Navigator.pop(context);
-              },
-              child: Text("返回"),
-            ),
+            Hero(
+                tag: "btnBack",
+                child: RaisedButton(
+                  onPressed: () {
+                    print('Page2 pop');
+                    Navigator.pop(context);
+                  },
+                  child: Text("返回"),
+                )),
             Text("Page2 arguments:$arguments")
           ],
         ),
@@ -191,13 +193,15 @@ class Page3 extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            RaisedButton(
-              onPressed: () {
-                print('Page3 pop');
-                Navigator.pop(context);
-              },
-              child: Text("返回"),
-            ),
+            Hero(
+                tag: "btnBack",
+                child: RaisedButton(
+                  onPressed: () {
+                    print('Page3 pop');
+                    Navigator.pop(context);
+                  },
+                  child: Text("返回"),
+                )),
             Text("Page3")
           ],
         ),
