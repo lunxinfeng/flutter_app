@@ -5,8 +5,12 @@ import cn.izis.util.JavaToC
 import cn.izis.util.ScoreUtil
 
 import io.flutter.app.FlutterActivity
+import io.flutter.plugin.common.BasicMessageChannel
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugins.GeneratedPluginRegistrant
+import io.flutter.view.FlutterNativeView
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
 
@@ -14,16 +18,22 @@ class MainActivity : FlutterActivity() {
     /**
      * Channel名称：必须与Flutter App的Channel名称一致
      */
-    private val METHOD_CHANNEL = "com.lxf.plugin/robot"
-    private val EVENT_CHANNEL = "samples.flutter.io/charging"
+    private val BASIC_MESSAGE_CHANNEL = "study_3/basicMessageChannel"
+    private val METHOD_CHANNEL = "study_3/methodChannel"
+    private val EVENT_CHANNEL = "study_3/eventChannel"
 
+    private val METHOD_CHANNEL_ROBOT = "com.lxf.plugin/robot"
     private val executorService = Executors.newSingleThreadExecutor()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         GeneratedPluginRegistrant.registerWith(this)
 
-        MethodChannel(this.flutterView, METHOD_CHANNEL)
+        basicMessageChanelDemo()
+        methodChannelDemo()
+        eventChannelDemo()
+
+        MethodChannel(this.flutterView, METHOD_CHANNEL_ROBOT)
                 .setMethodCallHandler { methodCall, result ->
                     when (methodCall.method) {
                         "startGame" -> {
@@ -38,6 +48,77 @@ class MainActivity : FlutterActivity() {
                         }
                     }
                 }
+    }
+
+    private fun basicMessageChanelDemo(){
+        BasicMessageChannel(this.flutterView,BASIC_MESSAGE_CHANNEL, StandardMessageCodec.INSTANCE)
+                .setMessageHandler { any, reply ->
+                    println("android listen:$any")
+                    reply.reply("android response to flutter")
+
+
+                    BasicMessageChannel(this.flutterView,BASIC_MESSAGE_CHANNEL, StandardMessageCodec.INSTANCE)
+                            .send("android send to flutter"){
+                                println("android receive response:$it")
+                            }
+                }
+    }
+
+    private fun methodChannelDemo(){
+        MethodChannel(this.flutterView,METHOD_CHANNEL)
+                .setMethodCallHandler { methodCall, result ->
+                    println("android listen:${methodCall.method} \t ${methodCall.arguments}")
+                    when(methodCall.method){
+                        "getAge" -> {
+                            result.success(getAge(methodCall.argument<String>("name")))
+                        }
+                    }
+
+
+                    MethodChannel(this.flutterView,METHOD_CHANNEL)
+                            .invokeMethod("getSex", mapOf(Pair("name","tom")), object : MethodChannel.Result {
+                                override fun notImplemented() {
+                                    println("android receive notImplemented")
+                                }
+
+                                override fun error(p0: String?, p1: String?, p2: Any?) {
+                                    println("android receive error")
+                                }
+
+                                override fun success(p0: Any?) {
+                                    println("android receive response:$p0")
+                                }
+                            })
+                }
+    }
+
+    private fun getAge(name:String?): Int{
+        return when(name){
+            "lili" -> 18
+            "tom" -> 19
+            "allen" -> 20
+            else -> 0
+        }
+    }
+
+    private fun eventChannelDemo(){
+        EventChannel(this.flutterView,EVENT_CHANNEL)
+                .setStreamHandler(object : EventChannel.StreamHandler {
+                    override fun onListen(p0: Any?, events: EventChannel.EventSink?) {
+                        println("android onListen:$p0")
+
+                        events?.success(1)
+                        events?.success(2)
+                        events?.success(3)
+                        events?.success(4)
+                        events?.endOfStream()
+                        events?.success(5)
+                    }
+
+                    override fun onCancel(p0: Any?) {
+                        println("android onCancel:$p0")
+                    }
+                })
     }
 
     private fun startGame(): Int {
